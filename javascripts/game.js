@@ -1,7 +1,6 @@
 var canvas;
 var context;
 var framerate = 15;
-var frameskip = framerate/5;
 var P1;
 var P2;
 var paddle_speed = 4;
@@ -38,12 +37,12 @@ function startUp(){
 
 function gameLoop(){
     InputManager.proccessInput();
-    game.physicsUpdate();
     clearCanvas();
     drawBall(ball);
     drawPlayer(P1);
     drawPlayer(P2);
     drawHUD(game);
+    game.physicsUpdate();
 }
 
 //Input Management
@@ -195,5 +194,4 @@ function drawHUD(game){
     context.textBaseline = "bottom";
     context.fillStyle = "rgb(255,255,255)";
     context.fillText(game.scoreP1 + " X " + game.scoreP2, 290, 20);
-
 }
