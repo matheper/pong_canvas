@@ -38,9 +38,8 @@ function startUp(){
 
 function gameLoop(){
     InputManager.proccessInput();
-    clearCanvas();
     game.physicsUpdate();
-    ball.move();
+    clearCanvas();
     drawBall(ball);
     drawPlayer(P1);
     drawPlayer(P2);
@@ -122,6 +121,12 @@ Ball = function(){
         move: function(){
             this.x += this.direction_x * ball_speed;
             this.y += this.direction_y * ball_speed;
+        },
+        reset: function(side){
+            this.x = side == 1 ? 25 : 555;
+            this.y = context.canvas.clientHeight / 2;
+            this.direction_x = side;
+            this.direction_y = side;
         }
     }
 }
@@ -143,17 +148,20 @@ var game = {
         //Verifica colisoes com os raquetes
         if (testCollisions(P1, ball)){
             ball.direction_x = 1;
-        }else if (testCollisions(P2, ball)){
+        }
+        else if (testCollisions(P2, ball)){
             ball.direction_x = -1;
         }
         //Um jogador pontua
         if (ball.x > context.canvas.clientWidth){
             this.scoreP1 += 1;
+            ball.reset(-1);
         }
-        else if(ball.y < 0){
+        else if(ball.x < 0){
             this.scoreP2 += 1;
+            ball.reset(1);
         }
-
+    ball.move();
     }
 }
 
