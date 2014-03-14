@@ -1,15 +1,17 @@
 var canvas;
 var context;
-var framerate = 20;
+var framerate = 15;
 var frameskip = framerate/5;
 var P1;
 var P2;
-var ball;
-var ball_speed = 4;
 var paddle_speed = 4;
 var paddle_height = 80;
 var paddle_width = 15;
-var max_height;
+var max_paddle_height;
+var ball;
+var ball_speed = 4;
+var ball_size = 15;
+var max_ball_height;
 
 window.onload = function(){
     startUp();
@@ -30,16 +32,19 @@ function startUp(){
     P1 = Player(1);
     P2 = Player(2);
     ball = Ball();
-    max_height = context.canvas.clientHeight - paddle_height;
+    max_paddle_height = context.canvas.clientHeight - paddle_height;
+    max_ball_height = context.canvas.clientHeight - ball_size;
 }
 
 function gameLoop(){
     InputManager.proccessInput();
     clearCanvas();
-    drawPlayer(P1);
-    drawPlayer(P2);
+    game.physicsUpdate();
     ball.move();
     drawBall(ball);
+    drawPlayer(P1);
+    drawPlayer(P2);
+    drawHUD(game);
 }
 
 //Input Management
@@ -93,16 +98,16 @@ Player = function(side){
         y:y,
         sprite:sprite,
         move: function(my){
-            next_move = this.y + my*paddle_speed;
-            if (next_move < 320 && next_move > 0){
-                this.y = next_move;
+            next_y = this.y + my*paddle_speed;
+            if (next_y < max_paddle_height && next_y > 0){
+                this.y = next_y;
             }
         }
     }
 }
 
 Ball = function(){
-    var x = context.canvas.clientWidth / 2;
+    var x = 25;
     var y = context.canvas.clientHeight / 2;
     var sprite = new Image();
     sprite.src = "images/ball.png";
@@ -115,8 +120,8 @@ Ball = function(){
         direction_x:direction_x,
         direction_y:direction_y,
         move: function(){
-            this.x += direction_x * ball_speed;
-            this.y += direction_y * ball_speed;
+            this.x += this.direction_x * ball_speed;
+            this.y += this.direction_y * ball_speed;
         }
     }
 }
@@ -125,6 +130,42 @@ var game = {
     scoreP1:0,
     scoreP2:0,
     max_score:10,
+    physicsUpdate: function(){
+        //Verifica colisoes com as paredes
+        ball.x += ball.direction_x * ball_speed;
+        next_y = ball.y + ball.direction_y * ball_speed;
+        if (next_y > max_ball_height){
+            ball.direction_y = -1
+        }
+        else if(next_y < 0){
+            ball.direction_y = 1;
+        }
+        //Verifica colisoes com os raquetes
+        if (testCollisions(P1, ball)){
+            ball.direction_x = 1;
+        }else if (testCollisions(P2, ball)){
+            ball.direction_x = -1;
+        }
+        //Um jogador pontua
+        if (ball.x > context.canvas.clientWidth){
+            this.scoreP1 += 1;
+        }
+        else if(ball.y < 0){
+            this.scoreP2 += 1;
+        }
+
+    }
+}
+
+//ball logic
+
+//Colision
+function testCollisions(obj1, obj2){
+    var collision = !(obj1.x > obj2.x + obj2.sprite.width ||
+             obj1.x + obj1.sprite.width < obj2.x ||
+             obj1.y > obj2.y + obj2.sprite.height ||
+             obj1.y + obj1.sprite.height < obj2.y);
+    return collision;
 }
 
 function drawPlayer(player){
@@ -137,4 +178,14 @@ function drawBall(ball){
 
 function clearCanvas(){
     canvas.width = canvas.width;
+}
+
+//heads-up display
+function drawHUD(game){
+    context.textAlign = "center";
+    context.font = "bold 12pt sans-serif";
+    context.textBaseline = "bottom";
+    context.fillStyle = "rgb(255,255,255)";
+    context.fillText(game.scoreP1 + " X " + game.scoreP2, 290, 20);
+
 }
