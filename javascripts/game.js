@@ -4,6 +4,8 @@ var framerate = 20;
 var frameskip = framerate/5;
 var P1;
 var P2;
+var ball;
+var ball_speed = 4;
 var paddle_speed = 4;
 var paddle_height = 80;
 var paddle_width = 15;
@@ -27,6 +29,7 @@ function startUp(){
     context = canvas.getContext('2d');
     P1 = Player(1);
     P2 = Player(2);
+    ball = Ball();
     max_height = context.canvas.clientHeight - paddle_height;
 }
 
@@ -35,6 +38,8 @@ function gameLoop(){
     clearCanvas();
     drawPlayer(P1);
     drawPlayer(P2);
+    ball.move();
+    drawBall(ball);
 }
 
 //Input Management
@@ -74,7 +79,7 @@ Player = function(side){
     var x;
     var y;
     var sprite = new Image();
-    sprite.src= "images/paddle.jpg";
+    sprite.src = "images/paddle.png";
     if(side==1){
         x = 10;
         y = 160;
@@ -96,8 +101,38 @@ Player = function(side){
     }
 }
 
+Ball = function(){
+    var x = context.canvas.clientWidth / 2;
+    var y = context.canvas.clientHeight / 2;
+    var sprite = new Image();
+    sprite.src = "images/ball.png";
+    var direction_x = 1;
+    var direction_y = 1;
+    return{
+        x:x,
+        y:y,
+        sprite:sprite,
+        direction_x:direction_x,
+        direction_y:direction_y,
+        move: function(){
+            this.x += direction_x * ball_speed;
+            this.y += direction_y * ball_speed;
+        }
+    }
+}
+
+var game = {
+    scoreP1:0,
+    scoreP2:0,
+    max_score:10,
+}
+
 function drawPlayer(player){
     context.drawImage(player.sprite, player.x, player.y);
+}
+
+function drawBall(ball){
+    context.drawImage(ball.sprite, ball.x, ball.y);
 }
 
 function clearCanvas(){
