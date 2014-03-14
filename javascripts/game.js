@@ -5,6 +5,9 @@ var frameskip = framerate/5;
 var P1;
 var P2;
 var paddle_speed = 4;
+var paddle_height = 80;
+var paddle_width = 15;
+var max_height;
 
 window.onload = function(){
     startUp();
@@ -24,13 +27,14 @@ function startUp(){
     context = canvas.getContext('2d');
     P1 = Player(1);
     P2 = Player(2);
+    max_height = context.canvas.clientHeight - paddle_height;
 }
 
 function gameLoop(){
     InputManager.proccessInput();
     clearCanvas();
-	drawPlayer(P1);
-	drawPlayer(P2);
+    drawPlayer(P1);
+    drawPlayer(P2);
 }
 
 //Input Management
@@ -84,7 +88,10 @@ Player = function(side){
         y:y,
         sprite:sprite,
         move: function(my){
-            this.y += my*paddle_speed;
+            next_move = this.y + my*paddle_speed;
+            if (next_move < 320 && next_move > 0){
+                this.y = next_move;
+            }
         }
     }
 }
